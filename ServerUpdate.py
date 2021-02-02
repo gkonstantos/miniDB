@@ -7,7 +7,7 @@ db = Database('smdb', load=True)
 
 
 def update_table(QUERY):    # Function responsible for executing th update command.
-# Split the query into the right parts.
+    # Split the query into the right parts.
     QUERY = QUERY.lstrip("UPDATE")  # query without UPDATE keyword.
     table_name = QUERY.split("SET")[0].split(",")[0].lstrip().split(" ")[0]    # Get table name.
     updated_column = QUERY.split("SET")[1].split("WHERE")[0].split("==")[0].lstrip().split(" ")[0]   # Get column to be updated.
@@ -36,11 +36,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:    # Establish IPV4
             QUERY = QUERY.decode('utf-8')
             if QUERY.startswith('UPDATE'):
                 try:
-                    table = update_table(QUERY)    # Call above function.
-                except:
-                    print("Wrong column name! ")
+                    table = update_table(QUERY)  # Call above function.
+
+                except Exception as e:
+                    print("An error has occured! ")
+                    er = "An error has occured: " + str(e)
                     db.unlock_table(table)  # Table locks for some reason, force unlock.
-                    conn.send("Wrong column name! ".encode())
+                    conn.sendall(bytes(er, "utf-8"))    # Send error message to client.
                 else:
                     conn.send(table.encode())   # Send table name to client.
                     print("change completed")

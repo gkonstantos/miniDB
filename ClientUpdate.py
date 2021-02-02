@@ -20,12 +20,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:    # Establish IPV4
 
         s.sendall(bytes(QUERY, 'utf-8'))    # Send query to server.
 
-        data = s.recv(1024).decode()    # Receive table name from server.
-        if data != "Wrong column name! ":   # if no mistakes have been committed, show the updated table.
+        data = s.recv(1024).decode("utf-8")    # Receive table name from server.
+        if not data.startswith("An"):   # if no mistakes have been committed, show the updated table.
             db.show_table(data)     # Call show_table() from database.py.
             print("change completed")
         else:
-            print("Wrong command, table or column name! ")
+            print(data)
         retry = input("Press y to try again or n to quit: ")    # Option to do another query.
 
     s.close()   # Close connection.

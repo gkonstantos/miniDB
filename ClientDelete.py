@@ -1,5 +1,8 @@
 import socket
+from database import Database
 
+db = Database('vsmdb', load=True)
+db = Database('smdb', load=True)
 
 HOST = '127.0.0.1'
 PORT = 65432
@@ -10,19 +13,20 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     redo = 'y'
     while True and redo == 'y':
-        QUERY = input("Insert DELETE query:")
+        QUERY = input("Insert DELETE query: ")
        
-        while not QUERY.startswith("DELETE FROM "):
-            QUERY = input("Please type the command correctly!")
+        while not QUERY.startswith("DELETE FROM ") or ' WHERE ' not in QUERY:
+            QUERY = input("Please type the command correctly! ")
         
-        s.sendall(bytes(QUERY, 'utf-8')) 
+        s.sendall(bytes(QUERY, 'utf-8'))
 
-        data = s.recv(1024).decode("utf-8")
-        if data != "Wrong column name! ":
+        data = s.recv(1024).decode()
+
+        if not data.startswith("An"):
             db.show_table(data)
             print("Delete Completed")
         else:
-            print("Wrong Command, Table or Column Name!")
+            print(data)
         redo = input("Press y if you wish to try again or n to exit: ")
      
-    s.close()
+    s.close()   # Close connection.
